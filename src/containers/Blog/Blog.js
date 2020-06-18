@@ -1,74 +1,95 @@
 import React, { Component } from "react";
-import axios from "axios";
+import { NavLink, Redirect, Route, Switch } from "react-router-dom";
 
-import Post from "../../components/Post/Post";
-import FullPost from "../../components/FullPost/FullPost";
-import NewPost from "../../components/NewPost/NewPost";
 import "./Blog.css";
+import Posts from "./Posts/Posts";
+// import NewPost from "./NewPost/NewPost";
+import asyncComponent from "../../hoc/asyncComponent";
+const AsyncNewPost = asyncComponent(() => {
+  return import("./NewPost/NewPost");
+});
 
 class Blog extends Component {
   state = {
-    posts: [],
-    hasCaughtError: false,
-  };
-
-  componentDidMount() {
-    axios
-      .get(`/post`)
-      .then((res) => {
-        console.log(res.data);
-        const posts = res.data.slice(0, 4);
-        const updatedPosts = posts.map((p) => {
-          return {
-            ...p,
-            author: "Orestes",
-          };
-        });
-        this.setState({
-          posts: updatedPosts,
-          selectedPostId: null,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        this.setState({
-          hasCaughtError: true,
-        });
-      });
-  }
-
-  selectedPostHandler = (postId) => {
-    this.setState({
-      selectedPostId: postId,
-    });
+    isUserAuth: true,
   };
 
   render() {
-    let posts = (
-      <p style={{ textAlign: "center", color: "red" }}>
-        There was an error retrieving your posts
-      </p>
-    );
-    if (!this.state.hasCaughtError) {
-      posts = this.state.posts.map((p) => (
-        <Post
-          key={p.id}
-          title={p.title}
-          author={p.author}
-          clicked={() => this.selectedPostHandler(p.id)}
-        />
-      ));
-    }
+    let routerGuardToNewPost = this.state.isUserAuth ? (
+      <Route path="/new-post" component={AsyncNewPost} />
+    ) : null;
 
     return (
       <div>
-        <section className="Posts">{posts}</section>
-        <section>
-          <FullPost postId={this.state.selectedPostId} />
-        </section>
-        <section>
-          <NewPost />
-        </section>
+        <header>
+          <nav className="Navbar">
+            <ul>
+              <li>
+                <NavLink to="/posts/" exact activeClassName="my-active">
+                  Posts
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={{
+                    pathname: "/new-post",
+                    hash: "#submit",
+                    search: "?quick-submit=true",
+                  }}
+                >
+                  New Post
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/about"
+                  activeStyle={{
+                    color: "#fa923f",
+                    textDecoration: "underline",
+                  }}
+                >
+                  About
+                </NavLink>
+              </li>
+            </ul>
+          </nav>
+        </header>
+
+        {/* Route using render property */}
+        {/*<Route path="/" exact render={() => <h1>Home</h1>} />*/}
+        {/*<Route path="/" render={() => <h1>Home 2</h1>} />*/}
+
+        {/*<Route path="/" exact component={Posts} />*/}
+        {/*<Route path="/new-post" component={NewPost} />*/}
+        {/*<Route*/}
+        {/*  path="/about"*/}
+        {/*  render={() => (*/}
+        {/*    <h1>An example how to styling active route with NavLink</h1>*/}
+        {/*  )}*/}
+        {/*/>*/}
+        {/*<Route path="/posts/:postId" component={FullPost} />*/}
+
+        {/* Route using Switch to only load one router at a time */}
+        <Switch>
+          <Route path="/posts" component={Posts} />
+          {routerGuardToNewPost}
+          <Route
+            path="/about"
+            render={() => (
+              <h1>An example how to styling active route with NavLink</h1>
+            )}
+          />
+          {/*<Route path="/:postId" component={FullPost} />*/}
+          <Redirect from="/" to="/posts" />
+          {/*second alternative to redirect to 404 page (not found). No work with <Redirect> component */}
+          {/*<Route*/}
+          {/*  render={() => (*/}
+          {/*    <h1 style={{ textAlign: "center", color: "red" }}>*/}
+          {/*      Page not Fount*/}
+          {/*    </h1>*/}
+          {/*  )}*/}
+          {/*/>*/}
+        </Switch>
       </div>
     );
   }

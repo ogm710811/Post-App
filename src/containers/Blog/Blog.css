@@ -1,7 +1,28 @@
-.Posts {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-  width: 80%;
-  margin: auto;
+.Navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
 }
+
+.Navbar li {
+  display: inline-block;
+  margin: 20px;
+}
+
+.Navbar a {
+  text-decoration: none;
+  color: black;
+}
+
+.Navbar a:hover,
+.Navbar a.active {
+  color: #fa923f;
+}
+
+.Navbar a.my-active {
+  color: red;
+}
+
+
